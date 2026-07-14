@@ -15,6 +15,8 @@ the crash seam visible in the audit trail:
 ./scripts/demo_recovery.sh    # needs ANTHROPIC_API_KEY
 ```
 
+![kill -9 recovery demo](demo_recovery.gif)
+
 ```
 ══ 💀 kill -9 worker-1 — mid-extraction, mid-model-call
 ══ starting worker-2; the lease expires and the run resumes

@@ -6,4 +6,4 @@ Set Height 700
 Set Theme "Dracula"
 Type "./scripts/demo_recovery.sh"
 Enter
-Sleep 45s
+Sleep 75s
