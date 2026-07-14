@@ -1,5 +1,7 @@
 # ledgerloop
 
+[![ci](https://github.com/jdanzig/ledgerloop/actions/workflows/ci.yml/badge.svg)](https://github.com/jdanzig/ledgerloop/actions/workflows/ci.yml)
+
 **A durable execution engine for AI agent workflows, built on Postgres event
 sourcing.** Agent runs survive `kill -9`. Every model decision is an immutable,
 replayable event. Humans can gate any step. LLM agents in production fail in
