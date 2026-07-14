@@ -88,3 +88,13 @@ async def test_chaos_convergence(pool):  # own deadline assert below
 
     # no orphaned leases / queue drained
     assert await pool.fetchval("SELECT count(*) FROM step_queue") == 0
+
+    # every log produced under real crashes still folds cleanly + deterministically
+    from ledgerloop.engine.events import fold, load_events
+
+    async with pool.acquire() as conn:
+        for r in statuses:
+            events = await load_events(conn, str(r["id"]))
+            assert fold(str(r["id"]), events).canonical() == fold(
+                str(r["id"]), events
+            ).canonical()
