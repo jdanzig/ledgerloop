@@ -14,6 +14,7 @@ import asyncpg
 from .events import (
     Event,
     EventType,
+    IllegalTransition,
     RunState,
     RunStatus,
     TERMINAL_STATUSES,
@@ -205,7 +206,13 @@ async def resolve_approval(
 
 
 async def cancel_run(conn: asyncpg.Connection, run_id: str) -> None:
-    """Append run_cancelled; workers observe on claim. Caller holds a txn."""
+    """Append run_cancelled; workers observe on claim. Caller holds a txn.
+
+    Folds first: appending run_cancelled to a terminal log would poison
+    every future fold of that run."""
+    state = fold(run_id, await load_events(conn, run_id))
+    if state.status in TERMINAL_STATUSES:
+        raise IllegalTransition(f"run {run_id} already {state.status.value}")
     await append(
         conn, run_id, [Event(type=EventType.RUN_CANCELLED, payload={})]
     )
