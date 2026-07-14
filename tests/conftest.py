@@ -13,6 +13,6 @@ DSN = os.environ.setdefault(
 async def pool():
     p = await create_pool(DSN)
     async with p.acquire() as conn:
-        await conn.execute("TRUNCATE step_queue, events, runs CASCADE")
+        await conn.execute("TRUNCATE step_queue, events, runs, kafka_outbox CASCADE")
     yield p
     await p.close()

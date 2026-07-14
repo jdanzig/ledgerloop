@@ -17,8 +17,10 @@ from .chaos_workflow import ChaosWorkflow, EFFECTS_DDL, STEPS
 REPO = pathlib.Path(__file__).parent.parent
 N_RUNS = 25
 N_WORKERS = 3
-KILL_EVERY_S = 0.75
-TIMEOUT_S = 90.0
+# ponytail: 1.5s cadence = ~2 kills per lease window; 0.75s converges on an
+# idle box but flakes when the colima VM is busy (kills outpace 3s lease reaps)
+KILL_EVERY_S = 1.5
+TIMEOUT_S = 120.0
 
 
 def spawn_worker(i: int) -> subprocess.Popen:
