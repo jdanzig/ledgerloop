@@ -53,6 +53,7 @@ class StepContext:
     state: RunState
     pool: asyncpg.Pool
     worker_id: str
+    queue_id: int
 
 
 class Worker:
@@ -124,6 +125,7 @@ class Worker:
             state=state,
             pool=self.pool,
             worker_id=self.worker_id,
+            queue_id=queue_id,
         )
         hb = asyncio.create_task(self._heartbeat_loop(queue_id))
         try:
