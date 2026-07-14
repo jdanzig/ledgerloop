@@ -1,0 +1,19 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://ledgerloop:ledgerloop@localhost:5432/ledgerloop
+      KAFKA_BOOTSTRAP: localhost:19092
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Start postgres + redpanda
+        run: docker compose up -d postgres redpanda --wait
+      - run: uv sync
+      - run: uv run python scripts/migrate.py
+      - run: uv run pytest -q

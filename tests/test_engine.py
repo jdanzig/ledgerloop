@@ -202,6 +202,27 @@ async def test_recovery_rematerializes_queue(pool):
         task.cancel()
 
 
+async def test_worker_never_claims_foreign_workflow_types(pool):
+    """A worker must not lease steps for workflow types outside its registry —
+    it can't execute them, and holding the lease starves workers that can."""
+    wf = ChaosWorkflow()
+    async with pool.acquire() as conn, conn.transaction():
+        run_id, _ = await start_run(conn, wf, "foreign1", None)
+    task = run_worker(pool, {"some_other_type": wf})  # knows nothing of "chaos"
+    try:
+        await asyncio.sleep(1.0)
+        row = await pool.fetchrow("SELECT claimed_by, lease_expires_at FROM step_queue")
+        assert row is not None and row["claimed_by"] is None  # untouched
+    finally:
+        task.cancel()
+    # a capable worker picks it up normally
+    task = run_worker(pool, {"chaos": wf})
+    try:
+        assert await wait_status(pool, run_id, {"completed"}) == "completed"
+    finally:
+        task.cancel()
+
+
 async def test_cancellation_observed_on_claim(pool):
     wf = ChaosWorkflow()
     async with pool.acquire() as conn, conn.transaction():

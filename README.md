@@ -29,6 +29,8 @@ the crash seam visible in the audit trail:
 
 ## Quick start
 
+Prereqs: [uv](https://docs.astral.sh/uv/), Docker (or Colima), an Anthropic API key.
+
 ```bash
 docker compose up -d postgres redpanda
 cp .env.example .env                      # add your ANTHROPIC_API_KEY
@@ -109,6 +111,52 @@ curl localhost:8000/graph/contracts/{id}/current        # walks SUPERSEDES chain
 
 OpenAPI docs at `localhost:8000/docs`.
 
+## Write your own workflow
+
+A workflow is two methods: `plan` (pure — folded state in, next actions out,
+called after every event) and `run_step` (does one step's work). The engine
+supplies durability, retries, crash recovery, and the audit trail.
+
+```python
+from ledgerloop.engine.scheduler import Schedule, RequestApproval, Complete, Fail
+
+class RefundWorkflow:
+    workflow_type = "refund"
+
+    def plan(self, state):
+        lookup = state.steps.get("lookup_order")
+        if lookup is None:
+            return [Schedule("lookup_order")]
+        if lookup.status != "succeeded":
+            return []                       # in flight; engine handles retries
+        gate = state.approvals.get("approve_refund")
+        if gate is None:
+            return [RequestApproval("approve_refund", {"order": lookup.result})]
+        if gate["status"] == "rejected":
+            return [Fail(f"rejected by {gate['approver']}")]
+        pay = state.steps.get("issue_refund")
+        if pay is None:
+            return [Schedule("issue_refund")]
+        if pay.status != "succeeded":
+            return []
+        return [Complete(result=pay.result)]
+
+    async def run_step(self, step_id, ctx):
+        if step_id == "lookup_order":
+            return {"order_id": ctx.state.input["order_id"], "amount": 42.0}
+        # thread (run_id, step_id, attempt) to external calls as an
+        # idempotency key — at-least-once execution is the contract
+        return {"refunded": True}
+
+WORKFLOWS = [RefundWorkflow()]
+```
+
+Point workers at it (`LEDGERLOOP_WORKFLOWS=myapp.workflows`) and start runs via
+`POST /runs`. For LLM/tool steps, use `Recorder` + `LLM` + `ToolRegistry` from
+`ledgerloop.runtime` — recorded decisions replay from the log after a crash
+instead of re-calling the model (see `ledgerloop/domain/contracts/` and
+`ledgerloop/runtime/agent.py` for a full agentic loop).
+
 ## The demo domain
 
 `ingest → extract → normalize → risk_flag → human_approval → commit`
@@ -160,3 +208,7 @@ uv run pytest                 # needs docker compose postgres + redpanda
   resume, complete exactly once
 - `test_kafka.py` — duplicate deliveries absorbed; audit stream has no gaps
   under concurrent appenders
+
+## License
+
+MIT

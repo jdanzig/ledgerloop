@@ -91,7 +91,9 @@ class Worker:
 
     async def _claim(self) -> asyncpg.Record | None:
         async with self.pool.acquire() as conn:
-            return await queue.claim(conn, self.worker_id, self.lease_s)
+            return await queue.claim(
+                conn, self.worker_id, self.lease_s, list(self.registry)
+            )
 
     async def _process(self, row: asyncpg.Record) -> None:
         queue_id, run_id = row["id"], str(row["run_id"])

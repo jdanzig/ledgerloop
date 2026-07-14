@@ -11,11 +11,13 @@ UPDATE step_queue
 SET    claimed_by = $1,
        lease_expires_at = now() + make_interval(secs => $2)
 WHERE  id = (
-    SELECT id FROM step_queue
-    WHERE  run_after <= now()
-      AND (lease_expires_at IS NULL OR lease_expires_at < now())
-    ORDER BY run_after
-    FOR UPDATE SKIP LOCKED
+    SELECT q.id FROM step_queue q
+    JOIN runs r ON r.id = q.run_id
+    WHERE  q.run_after <= now()
+      AND (q.lease_expires_at IS NULL OR q.lease_expires_at < now())
+      AND ($3::text[] IS NULL OR r.workflow_type = ANY($3::text[]))
+    ORDER BY q.run_after
+    FOR UPDATE OF q SKIP LOCKED
     LIMIT 1
 )
 RETURNING id, run_id, step_id, attempt
@@ -23,9 +25,15 @@ RETURNING id, run_id, step_id, attempt
 
 
 async def claim(
-    conn: asyncpg.Connection, worker_id: str, lease_s: float = 30.0
+    conn: asyncpg.Connection,
+    worker_id: str,
+    lease_s: float = 30.0,
+    workflow_types: list[str] | None = None,
 ) -> asyncpg.Record | None:
-    return await conn.fetchrow(CLAIM_SQL, worker_id, lease_s)
+    """Claim one due step this worker can actually execute — a worker must
+    never lease work for a workflow_type outside its registry, or it starves
+    the workers that could run it."""
+    return await conn.fetchrow(CLAIM_SQL, worker_id, lease_s, workflow_types)
 
 
 async def heartbeat(
