@@ -168,6 +168,16 @@ normalized record is what commits. Risk flags are **rules, not a model** —
 flags must be explainable in an audit context. Extracted terms are staged in
 the event log; nothing touches the graph until `approval_granted`.
 
+A second workflow, `invoice_ingestion`
+(`ingest → extract → match → flag → human_approval → commit`), shows the
+platform claim in practice: incoming invoices are matched against the vendor's
+*current* contract terms — resolved through the supersedes chain, so an invoice
+citing the original agreement is checked against the amendment — and
+discrepancies are flagged by rules: **overbilling** (cumulative invoiced vs
+committed spend), **payment-terms mismatch**, **expired contract**, and
+**no-contract-on-file** (maverick spend). `GET /graph/vendors/{id}/spend`
+reports committed vs actually-invoiced totals.
+
 The graph is two tables — `entities` and `edges` — a knowledge graph in
 relational clothing, deliberately: at this scale, recursive CTEs beat operating
 a graph database, and the ontology is the interesting part. Ingesting an

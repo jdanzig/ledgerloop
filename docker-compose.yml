@@ -40,7 +40,7 @@ services:
       KAFKA_BOOTSTRAP: redpanda:9092
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       ANTHROPIC_MODEL: ${ANTHROPIC_MODEL:-claude-haiku-4-5-20251001}
-      LEDGERLOOP_WORKFLOWS: ledgerloop.domain.contracts.workflow
+      LEDGERLOOP_WORKFLOWS: ledgerloop.domain.contracts.workflow,ledgerloop.domain.invoices
     ports:
       - "8000:8000"
     depends_on:

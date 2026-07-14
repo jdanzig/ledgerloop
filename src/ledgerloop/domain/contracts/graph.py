@@ -117,9 +117,17 @@ async def vendor_spend(conn: asyncpg.Connection, party_id: str) -> dict[str, Any
         """,
         party_id,
     )
+    invoiced = await conn.fetchval(
+        "SELECT COALESCE(sum((i.attrs->>'total_amount')::numeric), 0)"
+        " FROM entities i"
+        " JOIN edges pt ON pt.src = i.id AND pt.dst = $1 AND pt.type = 'party_to'"
+        " WHERE i.type = 'invoice'",
+        party_id,
+    )
     return {
         "party_id": party_id,
         "total": float(sum(r["amount"] for r in rows)),
+        "invoiced_total": float(invoiced),  # committed vs actually billed
         "commitments": [dict(r) | {"amount": float(r["amount"]),
                                    "contract_id": str(r["contract_id"])} for r in rows],
     }
