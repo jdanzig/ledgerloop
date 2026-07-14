@@ -11,6 +11,7 @@ import asyncpg
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
+from ..domain.contracts import graph
 from ..engine.db import create_pool
 from ..engine.events import IllegalTransition, RunState, fold, load_events
 from ..engine.scheduler import Workflow, cancel_run, resolve_approval, start_run
@@ -159,6 +160,36 @@ def create_app(
             except IllegalTransition as e:
                 raise HTTPException(409, str(e))
         return {"run_id": run_id, "status": state.status.value}
+
+    @app.get("/graph/vendors/{party_id}/spend")
+    async def get_vendor_spend(party_id: str, pool: asyncpg.Pool = Depends(get_pool)):
+        async with pool.acquire() as conn:
+            if not await conn.fetchval(
+                "SELECT 1 FROM entities WHERE id = $1 AND type = 'party'", party_id
+            ):
+                raise HTTPException(404, f"party {party_id} not found")
+            return await graph.vendor_spend(conn, party_id)
+
+    @app.get("/graph/obligations")
+    async def get_obligations(
+        due_within: str = Query("90d", pattern=r"^\d+d?$"),
+        pool: asyncpg.Pool = Depends(get_pool),
+    ):
+        days = int(due_within.rstrip("d"))
+        async with pool.acquire() as conn:
+            return {"due_within_days": days,
+                    "obligations": await graph.obligations_due(conn, days)}
+
+    @app.get("/graph/contracts/{contract_id}/current")
+    async def get_current_terms(
+        contract_id: str, pool: asyncpg.Pool = Depends(get_pool)
+    ):
+        """Resolve current terms by walking the SUPERSEDES chain to its head."""
+        async with pool.acquire() as conn:
+            resolved = await graph.current_terms(conn, contract_id)
+        if resolved is None:
+            raise HTTPException(404, f"contract {contract_id} not found")
+        return resolved
 
     @app.post("/runs/{run_id}/cancel")
     async def post_cancel(run_id: str, pool: asyncpg.Pool = Depends(get_pool)):

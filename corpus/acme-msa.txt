@@ -1,0 +1,37 @@
+MASTER SERVICES AGREEMENT
+
+This Master Services Agreement (this "Agreement") is entered into as of
+January 15, 2026 (the "Effective Date") by and between Globex Corporation, a
+Delaware corporation ("Customer"), and Acme Data Services LLC, a California
+limited liability company ("Provider").
+
+1. SERVICES. Provider shall provide the data processing services described in
+one or more Statements of Work executed by the parties.
+
+2. TERM. The initial term of this Agreement is thirty-six (36) months from the
+Effective Date (the "Initial Term"). This Agreement shall automatically renew
+for successive twelve (12) month periods unless either party gives written
+notice of non-renewal at least ninety (90) days prior to the end of the
+then-current term.
+
+3. FEES AND PAYMENT. Customer commits to minimum fees of $250,000 per contract
+year (the "Annual Commitment"). Invoices are payable within forty-five (45)
+days of receipt. Provider may increase fees no more than once per contract
+year; no fee increase shall exceed five percent (5%).
+
+4. TERMINATION. Either party may terminate this Agreement for material breach
+upon thirty (30) days written notice if the breach remains uncured. Customer
+may not terminate this Agreement for convenience during the Initial Term.
+
+5. LIMITATION OF LIABILITY. EXCEPT FOR BREACHES OF CONFIDENTIALITY, NEITHER
+PARTY'S AGGREGATE LIABILITY SHALL EXCEED THE FEES PAID OR PAYABLE IN THE
+TWELVE (12) MONTHS PRECEDING THE CLAIM, UP TO A MAXIMUM OF $500,000.
+
+6. GOVERNING LAW. This Agreement is governed by the laws of the State of
+Delaware, without regard to its conflicts of law principles.
+
+IN WITNESS WHEREOF, the parties have executed this Agreement as of the
+Effective Date.
+
+GLOBEX CORPORATION                    ACME DATA SERVICES LLC
+By: /s/ H. Simpson                    By: /s/ W. Coyote

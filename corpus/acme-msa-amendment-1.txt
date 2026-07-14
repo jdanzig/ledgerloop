@@ -1,0 +1,24 @@
+AMENDMENT NO. 1 TO MASTER SERVICES AGREEMENT
+
+This Amendment No. 1 (this "Amendment"), effective as of September 1, 2026, is
+entered into by and between Globex Corporation ("Customer") and Acme Data
+Services LLC ("Provider"), and amends that certain Master Services Agreement
+between the parties dated January 15, 2026 (the "Agreement").
+
+1. ANNUAL COMMITMENT. Section 3 of the Agreement is amended to increase the
+Annual Commitment from $250,000 to $400,000 per contract year, reflecting the
+addition of the real-time analytics services described in SOW #3.
+
+2. PAYMENT TERMS. Invoices shall be payable within thirty (30) days of receipt,
+replacing the forty-five (45) day period in Section 3 of the Agreement.
+
+3. TERMINATION FOR CONVENIENCE. A new Section 4A is added: following the first
+anniversary of the Amendment effective date, Customer may terminate the
+Agreement for convenience on one hundred twenty (120) days written notice,
+subject to payment of fees accrued through the termination date.
+
+4. NO OTHER CHANGES. Except as expressly amended hereby, all terms of the
+Agreement remain in full force and effect.
+
+GLOBEX CORPORATION                    ACME DATA SERVICES LLC
+By: /s/ H. Simpson                    By: /s/ W. Coyote
