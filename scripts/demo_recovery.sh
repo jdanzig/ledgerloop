@@ -18,13 +18,17 @@ trap cleanup EXIT
 echo "══ migrations"
 uv run python scripts/migrate.py
 
+# run processes via the venv python directly: $! must be the real PID —
+# `uv run ... &` gives the wrapper's PID, so kill -9 misses the worker
+PY=.venv/bin/python
+
 echo "══ starting API on :8000"
-uv run uvicorn ledgerloop.api.app:app --port 8000 --log-level warning &
+$PY -m uvicorn ledgerloop.api.app:app --port 8000 --log-level warning > /tmp/ledgerloop-api.log 2>&1 &
 PIDS+=($!)
 sleep 2
 
 echo "══ starting worker-1"
-WORKER_ID=worker-1 uv run python -m ledgerloop.engine.worker &
+WORKER_ID=worker-1 $PY -m ledgerloop.engine.worker > /tmp/ledgerloop-w1.log 2>&1 &
 W1=$!
 PIDS+=($W1)
 
@@ -53,7 +57,7 @@ kill -9 "$W1"
 echo
 
 echo "══ starting worker-2; the lease expires and the run resumes"
-WORKER_ID=worker-2 uv run python -m ledgerloop.engine.worker &
+WORKER_ID=worker-2 $PY -m ledgerloop.engine.worker > /tmp/ledgerloop-w2.log 2>&1 &
 PIDS+=($!)
 
 echo "══ waiting for the human approval gate…"
