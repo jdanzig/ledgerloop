@@ -5,7 +5,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-: "${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY — the demo runs real extraction}"
+[ -f .env ] && set -a && source .env && set +a
+: "${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY (or put it in .env) — the demo runs real extraction}"
 export DATABASE_URL="${DATABASE_URL:-postgresql://ledgerloop:ledgerloop@localhost:5432/ledgerloop}"
 export LEDGERLOOP_WORKFLOWS=ledgerloop.domain.contracts.workflow
 export LEDGERLOOP_LEASE_S=5 LEDGERLOOP_HEARTBEAT_S=2
