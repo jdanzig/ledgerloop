@@ -29,6 +29,9 @@ the crash seam visible in the audit trail:
 
 (Record it with [vhs](https://github.com/charmbracelet/vhs): `vhs scripts/demo.tape`.)
 
+For the long version, read [the anatomy of a real run](docs/anatomy-of-a-run.md) —
+44 events: 3 extractions, 2 human rejections, both workers killed, 0 lost work.
+
 ## Quick start
 
 Prereqs: [uv](https://docs.astral.sh/uv/), Docker (or Colima), an Anthropic API key.
